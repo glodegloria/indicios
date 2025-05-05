@@ -1,1 +1,3 @@
-
+This is the experiment1 folder. This experiment is created for change the parameter in the MCMC-algorithm using an index. It 
+varies the parameter randomly in each iteration and it perturbates the parameter using a random normal noise. It also variates the 
+search window (sigma_prop in metropolis).
