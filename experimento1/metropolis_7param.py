@@ -9,7 +9,7 @@ import mat73
 ##############################################################################################
 # JUST FOR TESTING PURPOSES TO LOAD THE DATA
 ###############################################################################################
-
+#
 #data_point_ages=scipy.io.loadmat('Point_ages_xyzKocsisScotese_400.mat')
 #shelf_lonlatAge=data_point_ages['shelf_lonlatAge']
 #Point_timeslices=data_point_ages['Point_timeslices']
@@ -109,7 +109,7 @@ def inditek_metropolis(params_current, food_shelf, temp_shelf, Point_timeslices,
 
         #Create the array to store the change of parameters in each iteration
     #change_params=[[] for i in range(7)]
-    change_params=np.zeros(nparams)
+    change_params=np.full([nparams,50], np.nan)
 
     #Initialize the scalar index2, it is used to check if the parameter has changed in each iteration
     #It is initialized to NaN to avoid problems in the first iteration
@@ -123,8 +123,9 @@ def inditek_metropolis(params_current, food_shelf, temp_shelf, Point_timeslices,
 
         #If the parameter is the same as in the previous iteration, the change_params array adds 1 to the index of the parameter that has changed
         if index1!=index2:
-            change_params[index1]+=1
-            #change_params[index1].append(iter)
+            #change_params[index1]+=1
+            idx = np.isnan(change_params[index1]).argmax()
+            change_params[index1][idx] = iter
 
         
         #print("index1")
@@ -136,14 +137,17 @@ def inditek_metropolis(params_current, food_shelf, temp_shelf, Point_timeslices,
         #Initializes the proposed parameters with the current ones
         params_proposed=params_current
 
-        #If it is the 3st time that the parameter has changed, it modifies the sigma_prop of that parameter 
-        if change_params[index1]%3==0 and index2!=index1:
-        #if index2!=index1 and change_params[index1].size
+        #If it is the 3st time that the parameter has changed, it modifies the sigma_prop of that parameter
+        #print(change_params[index1][np.isnan(change_params[index1])==0]) 
+        if change_params[index1][np.isnan(change_params[index1])==0].size%3==0 and index2!=index1:
             
             #Calculates the acceptance rate (AR) of the parameter that has changed as the sum of the acceptance history divided by the number of iterations
             #With this code, it calculates the AR for all the parameters.
-            AR=np.nansum(output["acceptance_history"])/iter#No se si el AR ha de tener en cuenta solo a ese parametro o a todos en general
-            #AR=np.nansum(output["acceptance_history"][change_params[index1]])/iter#No se si el AR ha de tener en cuenta solo a ese parametro o a todos en general
+            #AR=np.nansum(output["acceptance_history"])/iter#No se si el AR ha de tener en cuenta solo a ese parametro o a todos en general
+            valid_indices = change_params[index1][np.isnan(change_params[index1])==0].astype(int)
+            AR=np.nansum(output["acceptance_history"][valid_indices])/iter#No se si el AR ha de tener en cuenta solo a ese parametro o a todos en general
+            #AR=np.nansum(output["acceptance_history"][change_params[index1][np.isnan(change_params[index1])==0]])/iter#No se si el AR ha de tener en cuenta solo a ese parametro o a todos en general
+            change_params[index1]=np.full([50], np.nan)
             print("AR")
             print(AR)
             #It changes the sigma_prop of the parameter that has changed
@@ -176,16 +180,16 @@ def inditek_metropolis(params_current, food_shelf, temp_shelf, Point_timeslices,
             if gaus.size>0:
                 temp[gaus]=((params_current[gaus] - mu[gaus]) / sigma[gaus])**2
             log_prior_proposed=-0.5*sum(temp)
-            print("log_prior_proposed")
-            print(log_prior_proposed)
+            #print("log_prior_proposed")
+            #print(log_prior_proposed)
             log_likelihood_proposed=-(1/2)*rss_proposed
-            print("rss_proposed")
-            print(rss_proposed)
-            print("log_likelihood_proposed")
-            print(log_likelihood_proposed)
+            #print("rss_proposed")
+            #print(rss_proposed)
+            #print("log_likelihood_proposed")
+            #print(log_likelihood_proposed)
             log_posterior_proposed =log_prior_proposed+log_likelihood_proposed
-            print("log_posterior_proposed")
-            print(log_posterior_current)
+            #print("log_posterior_proposed")
+            #print(log_posterior_current)
             #####################################################################################
             #Save the results of the current iteration in the output dictionary
 
@@ -203,10 +207,10 @@ def inditek_metropolis(params_current, food_shelf, temp_shelf, Point_timeslices,
             # (log_posterior_proposed-log_posterior_current) and compare to a random (0-1) number u:
 
             u=np.random.rand()
-            print("np.log(u)")
-            print(np.log(u))
-            print("criterio")
-            print(log_posterior_proposed-log_posterior_current)
+            #print("np.log(u)")
+            #print(np.log(u))
+            #print("criterio")
+            #print(log_posterior_proposed-log_posterior_current)
             if np.log(u)<log_posterior_proposed-log_posterior_current:
 
                 
