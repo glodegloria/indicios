@@ -109,7 +109,8 @@ def inditek_metropolis(params_current, food_shelf, temp_shelf, Point_timeslices,
 
         #Create the array to store the change of parameters in each iteration
     #change_params=[[] for i in range(7)]
-    change_params=np.full([nparams,50], np.nan)
+    n_AR=3
+    change_params=np.full([nparams,n_AR], np.nan)
 
     #Initialize the scalar index2, it is used to check if the parameter has changed in each iteration
     #It is initialized to NaN to avoid problems in the first iteration
@@ -139,7 +140,7 @@ def inditek_metropolis(params_current, food_shelf, temp_shelf, Point_timeslices,
 
         #If it is the 3st time that the parameter has changed, it modifies the sigma_prop of that parameter
         #print(change_params[index1][np.isnan(change_params[index1])==0]) 
-        if change_params[index1][np.isnan(change_params[index1])==0].size%3==0 and index2!=index1:
+        if change_params[index1][np.isnan(change_params[index1])==0].size%n_AR==0 and index2!=index1:
             
             #Calculates the acceptance rate (AR) of the parameter that has changed as the sum of the acceptance history divided by the number of iterations
             #With this code, it calculates the AR for all the parameters.
