@@ -236,4 +236,4 @@ def alphadiv(Point_timeslices,shelf_lonlatAge,rho_shelf,K_shelf,latWindow,lonWin
 
     #np.savez("datos_finales.npz", D_shelf=D_shelf, rho_shelf_eff=rho_shelf_eff)
 
-    return D_shelf,  rho_shelf_eff     
+    return rho_shelf_eff, D_shelf        
