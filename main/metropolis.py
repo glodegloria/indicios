@@ -170,9 +170,9 @@ def inditek_metropolis(LonDeg, landShelfOcean_Lat,landShelfOcean_Lon, landShelfO
                 acceptance_tagmark=1 #Mark as accepted
             # UPDATE parameter values for NEXT ITERATION
 
-                params_current=params_proposed
-                rss_current=rss_proposed
-                log_posterior_current=log_posterior_proposed
+                params_current=params_proposed.copy()
+                rss_current=rss_proposed.copy()
+                log_posterior_current=log_posterior_proposed.copy()
             else:
                 acceptance_tagmark=0
                 # DO NOT UPDATE FOR NEXT ITERATION
