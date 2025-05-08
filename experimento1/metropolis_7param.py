@@ -9,7 +9,7 @@ import mat73
 ##############################################################################################
 # JUST FOR TESTING PURPOSES TO LOAD THE DATA
 ###############################################################################################
-#
+
 #data_point_ages=scipy.io.loadmat('Point_ages_xyzKocsisScotese_400.mat')
 #shelf_lonlatAge=data_point_ages['shelf_lonlatAge']
 #Point_timeslices=data_point_ages['Point_timeslices']
@@ -20,7 +20,6 @@ import mat73
 #landShelfOceanMask=data_mask['landShelfOceanMask']
 #landShelfOceanMask = np.flip(landShelfOceanMask, axis=2)
 #
-
 #data_food_temp=scipy.io.loadmat('Point_foodtemp_v241023.mat')
 #
 #
@@ -39,7 +38,7 @@ import mat73
 #idx_obis=data_obis["idx_obis"]
 #
 #num_chains=2
-#nsamples=70
+#nsamples=3
 #nparams=7
 ##
 ##
@@ -92,8 +91,10 @@ def inditek_metropolis(params_current, food_shelf, temp_shelf, Point_timeslices,
     #Calculates the initial RSS (residual sum of squares) for the current parameters
 
     #rss_current=principal(params_current[0], params_current[1], params_current[2], params_current[3], params_current[4])
-    rss_current = np.random.uniform(100, 5000)
-    #rss_current=principal(kfood, params_current[1], food_shelf, temp_shelf, ext_pattern, params_current[0], params_current[2], params_current[3], params_current[4], params_current[5], params_current[6], shelf_lonlatAge, Point_timeslices, latWindow,lonWindow,LonDeg, landShelfOcean_Lat,landShelfOcean_Lon, landShelfOceanMask, d_obis,se_obis,idx_obis)
+    #rss_current = np.random.uniform(100, 5000)
+    rss_current=principal(kfood, params_current[1], food_shelf, temp_shelf, ext_pattern, params_current[0], params_current[2], params_current[3], params_current[4], params_current[5], params_current[6], shelf_lonlatAge, Point_timeslices, latWindow,lonWindow,LonDeg, landShelfOcean_Lat,landShelfOcean_Lon, landShelfOceanMask, d_obis,se_obis,idx_obis)
+    #print("params_current")
+    #print(params_current)
     temp=np.zeros(nparams)#force those with uniform distribution to a probability of 1 along the range (log(1)=0;)
     if gaus.size>0:
         temp[gaus]=mu[gaus]#((params_current[gaus] - mu[gaus]) / sigma[gaus])**2
@@ -137,7 +138,7 @@ def inditek_metropolis(params_current, food_shelf, temp_shelf, Point_timeslices,
 
 
         #Initializes the proposed parameters with the current ones
-        params_proposed=params_current
+        params_proposed=params_current.copy()
 
         #If it is the 3st time that the parameter has changed, it modifies the sigma_prop of that parameter
         #print(change_params[index1][np.isnan(change_params[index1])==0]) 
@@ -150,8 +151,8 @@ def inditek_metropolis(params_current, food_shelf, temp_shelf, Point_timeslices,
             AR=np.nansum(output["acceptance_history"][valid_indices])/iter#No se si el AR ha de tener en cuenta solo a ese parametro o a todos en general
             #AR=np.nansum(output["acceptance_history"][change_params[index1][np.isnan(change_params[index1])==0]])/iter#No se si el AR ha de tener en cuenta solo a ese parametro o a todos en general
             change_params[index1]=np.full([50], np.nan)
-            print("AR")
-            print(AR)
+            #print("AR")
+            #print(AR)
             #It changes the sigma_prop of the parameter that has changed
             sigma_prop[index1]=sigma_prop[index1]*AR/(0.4)
 
@@ -173,8 +174,8 @@ def inditek_metropolis(params_current, food_shelf, temp_shelf, Point_timeslices,
         #I run the acceptance procedure if all my parameters are in bounds (between the range defined in inditek_indicios)
         if np.all(params_proposed <= ran[:,1]) and np.all(params_proposed >=ran[:,0]):
             #Run the model and Calculate the RSS (residual sum of squares) for the proposed parameters
-            rss_proposed = np.random.uniform(100, 5000) #aleatorio, para no gastar tanto tiempo
-            #rss_proposed=principal(kfood, params_proposed[1], food_shelf, temp_shelf, ext_pattern, params_proposed[0], params_proposed[2], params_proposed[3], params_proposed[4], params_proposed[5], params_proposed[6], shelf_lonlatAge, Point_timeslices, latWindow,lonWindow,LonDeg, landShelfOcean_Lat,landShelfOcean_Lon, landShelfOceanMask, d_obis,se_obis,idx_obis) #con 7 parametros
+            #rss_proposed = np.random.uniform(100, 5000) #aleatorio, para no gastar tanto tiempo
+            rss_proposed=principal(kfood, params_proposed[1], food_shelf, temp_shelf, ext_pattern, params_proposed[0], params_proposed[2], params_proposed[3], params_proposed[4], params_proposed[5], params_proposed[6], shelf_lonlatAge, Point_timeslices, latWindow,lonWindow,LonDeg, landShelfOcean_Lat,landShelfOcean_Lon, landShelfOceanMask, d_obis,se_obis,idx_obis) #con 7 parametros
             #rss_proposed=principal(kfood, Kmin, food_shelf, temp_shelf, ext_pattern, params_proposed[0], spec_min_mean, params_proposed[1], params_proposed[2], params_proposed[3], params_proposed[4], shelf_lonlatAge, Point_timeslices, latWindow,lonWindow,LonDeg, landShelfOcean_Lat,landShelfOcean_Lon, landShelfOceanMask, d_obis,se_obis,idx_obis) #con 5 parametros
 
             #as before, calculate the log(prior), log(likelihood) and log(posterior) of proposed parameters to compare to the current ones in the loop
@@ -220,9 +221,9 @@ def inditek_metropolis(params_current, food_shelf, temp_shelf, Point_timeslices,
                 acceptance_tagmark=1 #Mark as accepted
                 # UPDATE parameter values for NEXT ITERATION
 
-                params_current=params_proposed
-                rss_current=rss_proposed
-                log_posterior_current=log_posterior_proposed
+                params_current=params_proposed.copy()
+                rss_current=rss_proposed.copy()
+                log_posterior_current=log_posterior_proposed.copy()
             else:
                 acceptance_tagmark=0
                 # DO NOT UPDATE FOR NEXT ITERATION
@@ -242,16 +243,16 @@ def inditek_metropolis(params_current, food_shelf, temp_shelf, Point_timeslices,
 
         #print("#########################################################################")
         #print("HECHO UNA ITERACION")
-        print("############################################################################")
-        input("Pulsa enter para continuar")
+        #print("############################################################################")
+        #input("Pulsa enter para continuar")
 
     output["params_accepted_history"][iter+1, 0:nparams]=params_current
 
 #save the output dictionary to a .npz file if you are checking
 
-#np.savez("datos_finales_metropolis.npz", params_proposed_history=output["params_proposed_history"], params_accepted_history=output["params_accepted_history"],
-        #rss_proposed_history=output["rss_proposed_history"], rss_accepted_history=output["rss_accepted_history"],
-        #acceptance_history=output["acceptance_history"], log_posterior_diff_history=output["log_posterior_diff_history"])
+    #np.savez("datos_finales_metropolis.npz", params_proposed_history=output["params_proposed_history"], params_accepted_history=output["params_accepted_history"],
+    #    rss_proposed_history=output["rss_proposed_history"], rss_accepted_history=output["rss_accepted_history"],
+    #    acceptance_history=output["acceptance_history"], log_posterior_diff_history=output["log_posterior_diff_history"])
 
 
     #Return the output dictionary with the results of the Metropolis-Hastings algorithm
