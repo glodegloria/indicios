@@ -5,7 +5,8 @@ from haversine_distance import haversine_distance
 
 
 def alphadiv(Point_timeslices,shelf_lonlatAge,rho_shelf,K_shelf,latWindow,lonWindow,LonDeg):
-    
+
+    print("La nueva")
     pt=Point_timeslices
     pt=np.fliplr(pt).flatten() # position of 82 time slices in the 542 Myr (starting from 0 Ma (million tears ago)+1=position 1) to retrieve only that info from the final data matrix
     
@@ -236,4 +237,4 @@ def alphadiv(Point_timeslices,shelf_lonlatAge,rho_shelf,K_shelf,latWindow,lonWin
 
     #np.savez("datos_finales.npz", D_shelf=D_shelf, rho_shelf_eff=rho_shelf_eff)
 
-    return D_shelf,  rho_shelf_eff     
+    return rho_shelf_eff, D_shelf        
