@@ -52,7 +52,7 @@ def inditek_gridMean_alphadiv(D_shelf,shelf_lonlatAge,landShelfOcean_Lat,landShe
 
     #Creates a 2D array of zeros with the same shape as the grid, to store the diversity values.
     D=np.zeros(X.shape)
-    count=D
+    count=np.zeros(X.shape)
 
     #It goes from all the elements of the grid and adds the diversity values to the corresponding grid cell.
     #The count array is used to count the number of values added to each grid cell. It is used to calculate the mean diversity value for each grid cell.
