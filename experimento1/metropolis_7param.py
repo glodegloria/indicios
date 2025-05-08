@@ -9,113 +9,115 @@ import mat73
 ##############################################################################################
 # JUST FOR TESTING PURPOSES TO LOAD THE DATA
 ###############################################################################################
-
-data_point_ages=scipy.io.loadmat('Point_ages_xyzKocsisScotese_400.mat')
-shelf_lonlatAge=data_point_ages['shelf_lonlatAge']
-Point_timeslices=data_point_ages['Point_timeslices']
 #
-data_mask=mat73.loadmat('landShelfOceanMask_ContMargMaskKocsisScotese.mat')
-landShelfOcean_Lat=data_mask['landShelfOcean_Lat']
-landShelfOcean_Lon=data_mask['landShelfOcean_Lon']
-landShelfOceanMask=data_mask['landShelfOceanMask']
-landShelfOceanMask = np.flip(landShelfOceanMask, axis=2)
+#data_point_ages=scipy.io.loadmat('Point_ages_xyzKocsisScotese_400.mat')
+#shelf_lonlatAge=data_point_ages['shelf_lonlatAge']
+#Point_timeslices=data_point_ages['Point_timeslices']
+##
+#data_mask=mat73.loadmat('landShelfOceanMask_ContMargMaskKocsisScotese.mat')
+#landShelfOcean_Lat=data_mask['landShelfOcean_Lat']
+#landShelfOcean_Lon=data_mask['landShelfOcean_Lon']
+#landShelfOceanMask=data_mask['landShelfOceanMask']
+#landShelfOceanMask = np.flip(landShelfOceanMask, axis=2)
+#
 
-data_food_temp=scipy.io.loadmat('Point_foodtemp_v241023.mat')
-
-
-food_shelf=data_food_temp['food_shelf']
-temp_shelf=data_food_temp['temp_shelf']
-
-data_LonDeg=scipy.io.loadmat('LonDeg.mat')
-#print(data_LonDeg.keys())
-
-LonDeg=data_LonDeg['LonDeg']
-
-data_obis=scipy.io.loadmat("obis_data.mat")
-
-d_obis=data_obis["d_obis"]
-se_obis=data_obis["se_obis"]
-idx_obis=data_obis["idx_obis"]
-
-num_chains=2
-nsamples=70
-nparams=7
+#data_food_temp=scipy.io.loadmat('Point_foodtemp_v241023.mat')
 #
 #
+#food_shelf=data_food_temp['food_shelf']
+#temp_shelf=data_food_temp['temp_shelf']
 #
-data=np.load("indicios.npz")
-params_current=data["params_current"]
-mu=data["mu"]
-sigma=data["sigma"]
-sigma_prop=data["sigma_prop"]
-ran=data["ran"]
-
+#data_LonDeg=scipy.io.loadmat('LonDeg.mat')
+##print(data_LonDeg.keys())
+#
+#LonDeg=data_LonDeg['LonDeg']
+#
+#data_obis=scipy.io.loadmat("obis_data.mat")
+#
+#d_obis=data_obis["d_obis"]
+#se_obis=data_obis["se_obis"]
+#idx_obis=data_obis["idx_obis"]
+#
+#num_chains=2
+#nsamples=70
+#nparams=7
+##
+##
+##
+#data=np.load("indicios.npz")
+#params_current=data["params_current"]
+#mu=data["mu"]
+#sigma=data["sigma"]
+#sigma_prop=data["sigma_prop"]
+#ran=data["ran"]
+#
 ########################################################
 #END OF LOADING DATA
 #########################################################
 
-#def inditek_metropolis(params_current, food_shelf, temp_shelf, Point_timeslices, shelf_lonlatAge, nsamples, nparams, d_obis,se_obis, idx_obis, landShelfOceanMask, landShelfOcean_Lat, landShelfOcean_Lon, LonDeg, mu, sigma, ran, sigma_prop):
+def inditek_metropolis(params_current, food_shelf, temp_shelf, Point_timeslices, shelf_lonlatAge, nsamples, nparams, d_obis,se_obis, idx_obis, landShelfOceanMask, landShelfOcean_Lat, landShelfOcean_Lon, LonDeg, mu, sigma, ran, sigma_prop):
 
 
-#Charge the fix parameters
+    #Charge the fix parameters
 
-gaus=np.array([5])
-#index=5    
-kfood = 1 #[POC mol * m-2 yr-1]
-#Kmin=10   #Carrying capacity of #genera at minimum food availability
-lonWindow=2.5 # distance in degrees to search for particles from which diversity is "migrated" into the new coastal particles (newly submerged or artificially created by the paleotectonic model). e.g. for a 2x2 deg. window give 1 (lonWindow) & 1 (latWindow) values.
-latWindow=2.5
-#spec_min_mean = 0.1 #0.01; %minimum speciation rate that happens when food and temp are the lowest (#genera Myr^-1)
-ext_pattern=3 # Zaffos curve = 1, % Alroy curve = 2, % Sepkoski curve = 3, % average all curves = 4
+    gaus=np.array([5])
+    #index=5    
+    kfood = 1 #[POC mol * m-2 yr-1]
+    #Kmin=10   #Carrying capacity of #genera at minimum food availability
+    lonWindow=2.5 # distance in degrees to search for particles from which diversity is "migrated" into the new coastal particles (newly submerged or artificially created by the paleotectonic model). e.g. for a 2x2 deg. window give 1 (lonWindow) & 1 (latWindow) values.
+    latWindow=2.5
+    #spec_min_mean = 0.1 #0.01; %minimum speciation rate that happens when food and temp are the lowest (#genera Myr^-1)
+    ext_pattern=3 # Zaffos curve = 1, % Alroy curve = 2, % Sepkoski curve = 3, % average all curves = 4
 
-    #Storage for Diagnostics
-output={
+        #Storage for Diagnostics
+    output={
 
-    "params_accepted_history": np.zeros([nsamples+1,nparams]),
-    "params_proposed_history": np.zeros([nsamples,nparams]),
-    "acceptance_history": np.zeros([nsamples,1]),
-    "rss_accepted_history": np.zeros([nsamples,1]),
-    "rss_proposed_history": np.zeros([nsamples,1]),
-    "log_posterior_diff_history": np.zeros([nsamples,1])
-    }
-
-
-#Save the initial parameters in the output dictionary
-output["params_accepted_history"][0,:]=params_current
-output["params_proposed_history"][0,:]=params_current#Calculated in inditek_indicios as params_current=initial_theta(iChain,:)
-
-        #Initial RSS Calculation (before the loop)
+        "params_accepted_history": np.zeros([nsamples+1,nparams]),
+        "params_proposed_history": np.zeros([nsamples,nparams]),
+        "acceptance_history": np.zeros([nsamples,1]),
+        "rss_accepted_history": np.zeros([nsamples,1]),
+        "rss_proposed_history": np.zeros([nsamples,1]),
+        "log_posterior_diff_history": np.zeros([nsamples,1])
+        }
 
 
+    #Save the initial parameters in the output dictionary
+    output["params_accepted_history"][0,:]=params_current
+    output["params_proposed_history"][0,:]=params_current#Calculated in inditek_indicios as params_current=initial_theta(iChain,:)
 
-#Calculates the initial RSS (residual sum of squares) for the current parameters
-
-#rss_current=principal(params_current[0], params_current[1], params_current[2], params_current[3], params_current[4])
-rss_current = np.random.uniform(100, 5000)
-#rss_current=principal(kfood, params_current[1], food_shelf, temp_shelf, ext_pattern, params_current[0], params_current[2], params_current[3], params_current[4], params_current[5], params_current[6], shelf_lonlatAge, Point_timeslices, latWindow,lonWindow,LonDeg, landShelfOcean_Lat,landShelfOcean_Lon, landShelfOceanMask, d_obis,se_obis,idx_obis)
-temp=np.zeros(nparams)#force those with uniform distribution to a probability of 1 along the range (log(1)=0;)
-if gaus.size>0:
-    temp[gaus]=mu[gaus]#((params_current[gaus] - mu[gaus]) / sigma[gaus])**2
+            #Initial RSS Calculation (before the loop)
 
 
-    # calculate the log(prior), log(likelihood) and log(posterior) of current parameters to compare to the proposed ones in the loop
 
-log_prior_current=-0.5*sum(temp)
-log_likelihood_current=-(1/2)*rss_current
-log_posterior_current =log_prior_current+log_likelihood_current
+    #Calculates the initial RSS (residual sum of squares) for the current parameters
+
+    #rss_current=principal(params_current[0], params_current[1], params_current[2], params_current[3], params_current[4])
+    rss_current = np.random.uniform(100, 5000)
+    #rss_current=principal(kfood, params_current[1], food_shelf, temp_shelf, ext_pattern, params_current[0], params_current[2], params_current[3], params_current[4], params_current[5], params_current[6], shelf_lonlatAge, Point_timeslices, latWindow,lonWindow,LonDeg, landShelfOcean_Lat,landShelfOcean_Lon, landShelfOceanMask, d_obis,se_obis,idx_obis)
+    temp=np.zeros(nparams)#force those with uniform distribution to a probability of 1 along the range (log(1)=0;)
+    if gaus.size>0:
+        temp[gaus]=mu[gaus]#((params_current[gaus] - mu[gaus]) / sigma[gaus])**2
 
 
-            #Metropolis-Hastings samples with RSS   
+        # calculate the log(prior), log(likelihood) and log(posterior) of current parameters to compare to the proposed ones in the loop
 
-    #Create the array to store the change of parameters in each iteration
-#change_params=[[] for i in range(7)]
-change_params=np.full([nparams,50], np.nan)
+    log_prior_current=-0.5*sum(temp)
+    log_likelihood_current=-(1/2)*rss_current
+    log_posterior_current =log_prior_current+log_likelihood_current
 
-#Initialize the scalar index2, it is used to check if the parameter has changed in each iteration
-#It is initialized to NaN to avoid problems in the first iteration
-index2=np.nan
 
-for iter in range(1,nsamples):
+                #Metropolis-Hastings samples with RSS   
+
+            #Create the array to store the change of parameters in each iteration
+        #change_params=[[] for i in range(7)]
+    n_AR=3
+    change_params=np.full([nparams,n_AR], np.nan)
+
+    #Initialize the scalar index2, it is used to check if the parameter has changed in each iteration
+    #It is initialized to NaN to avoid problems in the first iteration
+    index2=np.nan
+
+    for iter in range(1,nsamples):
 
         #To change the parameter modified in each iteration but all with the same probability
 
@@ -138,8 +140,8 @@ for iter in range(1,nsamples):
         params_proposed=params_current
 
         #If it is the 3st time that the parameter has changed, it modifies the sigma_prop of that parameter
-        print(change_params[index1][np.isnan(change_params[index1])==0]) 
-        if change_params[index1][np.isnan(change_params[index1])==0].size%3==0 and index2!=index1:
+        #print(change_params[index1][np.isnan(change_params[index1])==0]) 
+        if change_params[index1][np.isnan(change_params[index1])==0].size%n_AR==0 and index2!=index1:
             
             #Calculates the acceptance rate (AR) of the parameter that has changed as the sum of the acceptance history divided by the number of iterations
             #With this code, it calculates the AR for all the parameters.
@@ -243,17 +245,17 @@ for iter in range(1,nsamples):
         print("############################################################################")
         input("Pulsa enter para continuar")
 
-output["params_accepted_history"][iter+1, 0:nparams]=params_current
+    output["params_accepted_history"][iter+1, 0:nparams]=params_current
 
 #save the output dictionary to a .npz file if you are checking
 
-np.savez("datos_finales_metropolis.npz", params_proposed_history=output["params_proposed_history"], params_accepted_history=output["params_accepted_history"],
-        rss_proposed_history=output["rss_proposed_history"], rss_accepted_history=output["rss_accepted_history"],
-        acceptance_history=output["acceptance_history"], log_posterior_diff_history=output["log_posterior_diff_history"])
+#np.savez("datos_finales_metropolis.npz", params_proposed_history=output["params_proposed_history"], params_accepted_history=output["params_accepted_history"],
+        #rss_proposed_history=output["rss_proposed_history"], rss_accepted_history=output["rss_accepted_history"],
+        #acceptance_history=output["acceptance_history"], log_posterior_diff_history=output["log_posterior_diff_history"])
 
 
     #Return the output dictionary with the results of the Metropolis-Hastings algorithm
-    #return output
+    return output
 
 
 
