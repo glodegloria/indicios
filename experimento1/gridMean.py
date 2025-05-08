@@ -38,11 +38,17 @@ def inditek_gridMean_alphadiv(D_shelf,shelf_lonlatAge,landShelfOcean_Lat,landShe
     lon=shelf_lonlatAge[:,shelf_lonlatAge.shape[1]-1,0]#
     d=D_shelf[:,D_shelf.shape[1]-1]#
 
+    
+    
+
 
     #Selects the latitudes and longitudes that are not NaN (not active points without diversity at time 0Myr) and ignores the NaN values.
     lat=lat[np.isnan(d)==0]#
     lon=lon[np.isnan(d)==0]  #ingnore NaN (no active points without diversity at time 0Myr)#
     d=d[np.isnan(d)==0]#
+
+    
+
 
 
     lat_idx=np.digitize(lat, lat_edges) - 1
@@ -52,7 +58,7 @@ def inditek_gridMean_alphadiv(D_shelf,shelf_lonlatAge,landShelfOcean_Lat,landShe
 
     #Creates a 2D array of zeros with the same shape as the grid, to store the diversity values.
     D=np.zeros(X.shape)
-    count=D
+    count=np.zeros(X.shape)
 
     #It goes from all the elements of the grid and adds the diversity values to the corresponding grid cell.
     #The count array is used to count the number of values added to each grid cell. It is used to calculate the mean diversity value for each grid cell.
