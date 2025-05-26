@@ -97,14 +97,14 @@ def alphadiv(Point_timeslices,shelf_lonlatAge,rho_shelf,K_shelf,latWindow,lonWin
 
 
                     # diversification keeping d in between D0 and local K bounds
-                    if np.logical_and(len(np.unique(rho_shelf[:,count2+1]))==1, np.all(np.unique(rho_shelf[:,count2+1]))<0): # extinction period
+                    #if np.logical_and(len(np.unique(rho_shelf[:,count2+1]))==1, np.all(np.unique(rho_shelf[:,count2+1]))<0): # extinction period
 
-                        d=np.maximum(D0,d+rho_shelf[pos2S[k],count2+1]*d)#bounded by D0
-                        D_shelf[pos2S[k],count2+1]=np.minimum(K_shelf[pos2S[k],step],d)#bounded by K_shelf (The carrying capacity)
-                    else: # normal diversification period
+                    #    d=np.maximum(D0,d+rho_shelf[pos2S[k],count2+1]*d)#bounded by D0
+                    #    D_shelf[pos2S[k],count2+1]=np.minimum(K_shelf[pos2S[k],step],d)#bounded by K_shelf (The carrying capacity)
+                    #else: # normal diversification period
 
-                        d=np.minimum(K_shelf[pos2S[k],step],d+rho_shelf[pos2S[k],count2+1]*d*(max(0,1-(d/K_shelf[pos2S[k],step])))) 
-                        D_shelf[pos2S[k],count2+1]=np.maximum(D0,d)
+                    d=np.minimum(K_shelf[pos2S[k],step],d+rho_shelf[pos2S[k],count2+1]*d*(max(0,1-(d/K_shelf[pos2S[k],step])))) 
+                    D_shelf[pos2S[k],count2+1]=np.maximum(D0,d)
 
             # #2# Special case of continental shelf points that did not exist in
             #time-1 and were artificially added in the Gplates model to fill gaps 
@@ -144,13 +144,13 @@ def alphadiv(Point_timeslices,shelf_lonlatAge,rho_shelf,K_shelf,latWindow,lonWin
                     d=np.clip(d, D0, K_shelf[pos2S[k],step])
 
                         # diversification keeping d in between D0 and local K bounds
-                    if np.logical_and(len(np.unique(rho_shelf[:,count2+1]))==1, np.all(np.unique(rho_shelf[:,count2+1]))<0): # extinction period
-                        d=np.maximum(D0,d+rho_shelf[pos2S[k],count2+1]*d)#bounded by D0
-                        D_shelf[pos2S[k],count2+1]=np.minimum(K_shelf[pos2S[k],step],d)#bounded by K_shelf (The carrying capacity)
+                    #if np.logical_and(len(np.unique(rho_shelf[:,count2+1]))==1, np.all(np.unique(rho_shelf[:,count2+1]))<0): # extinction period
+                    #    d=np.maximum(D0,d+rho_shelf[pos2S[k],count2+1]*d)#bounded by D0
+                    #    D_shelf[pos2S[k],count2+1]=np.minimum(K_shelf[pos2S[k],step],d)#bounded by K_shelf (The carrying capacity)
                 
-                    else: # normal diversification period
-                        d=np.minimum(K_shelf[pos2S[k],step],d+rho_shelf[pos2S[k],count2+1]*d*(max(0,1-(d/K_shelf[pos2S[k],step])))) 
-                        D_shelf[pos2S[k],count2+1]=np.maximum(D0,d) 
+                    #else: # normal diversification period
+                    d=np.minimum(K_shelf[pos2S[k],step],d+rho_shelf[pos2S[k],count2+1]*d*(max(0,1-(d/K_shelf[pos2S[k],step])))) 
+                    D_shelf[pos2S[k],count2+1]=np.maximum(D0,d) 
 
              #3# Normal points
 
@@ -163,14 +163,14 @@ def alphadiv(Point_timeslices,shelf_lonlatAge,rho_shelf,K_shelf,latWindow,lonWin
 
             d=np.maximum(D0,d)#bounded by D0
 
-            if np.logical_and(len(np.unique(rho_shelf[:,count2+1]))==1, np.all(np.unique(rho_shelf[:,count2+1]))<0): # extinction period
-                d=np.maximum(D0,d+rho_shelf[pos2S,count2+1]*d)#bounded by D0
-                D_shelf[pos2S,count2+1]=np.minimum(K_shelf[pos2S,step],d)#bounded by K_shelf (The carrying capacity)
+            #if np.logical_and(len(np.unique(rho_shelf[:,count2+1]))==1, np.all(np.unique(rho_shelf[:,count2+1]))<0): # extinction period
+            #    d=np.maximum(D0,d+rho_shelf[pos2S,count2+1]*d)#bounded by D0
+            #    D_shelf[pos2S,count2+1]=np.minimum(K_shelf[pos2S,step],d)#bounded by K_shelf (The carrying capacity)
 
-            else: # normal diversification period
-                rho_shelf_eff[pos2S,count2+1] = rho_shelf[pos2S,count2+1]* np.maximum(0, (1 - (d / K_shelf[pos2S,step])))
-                d=np.minimum(K_shelf[pos2S,step],d+d*rho_shelf[pos2S,count2+1]*(1-(d/K_shelf[pos2S,step])))
-                D_shelf[pos2S,count2+1]=np.maximum(D0,d)
+            #else: # normal diversification period
+            rho_shelf_eff[pos2S,count2+1] = rho_shelf[pos2S,count2+1]* np.maximum(0, (1 - (d / K_shelf[pos2S,step])))
+            d=np.minimum(K_shelf[pos2S,step],d+d*rho_shelf[pos2S,count2+1]*(1-(d/K_shelf[pos2S,step])))
+            D_shelf[pos2S,count2+1]=np.maximum(D0,d)
 
             #All active points (the 3 kinds defined by #N# above) accumulate diversity along the time gap
 
@@ -182,35 +182,33 @@ def alphadiv(Point_timeslices,shelf_lonlatAge,rho_shelf,K_shelf,latWindow,lonWin
 
             rho=rho_shelf[count2+2:count,:]
 
-            if sum(sum(rho<0))>0: #for a period with any Myr with a extinction we need to sum Myr step-wise diversity
-                for gap in range(count2+2,count+1):
-                    d=D_shelf[posS,gap-1]
-
-
-                    d=np.minimum(d,K_shelf[posS,step])
-                    d=np.maximum(d,D0)
-
-                    if np.logical_and(len(np.unique(rho_shelf[:,gap]))==1, np.all(np.unique(rho_shelf[:,gap]))<0):
-                        d=np.maximum(D0,d+d*rho_shelf[posS,gap]*scaling)#bounded by D0 
-                        D_shelf[posS,gap]=min(K_shelf[posS,step],d)
-                        
-                    else:
-                        rho_shelf_eff[posS,gap] = rho_shelf[posS,gap]* np.maximum(0, (1 - (d / K_shelf[posS,step])))
-                        d=np.where(np.isnan(d), K_shelf[posS,step], np.minimum(K_shelf[posS,step],d+d*rho_shelf[posS,gap]*np.maximum(0, (1-(d/K_shelf[posS,step])))*scaling.flatten()))
-                        D_shelf[posS,gap]=np.maximum(D0,d)     
-                        
-            else:
-                d=np.minimum(K_shelf[posS,step],d)
+            #if sum(sum(rho<0))>0: #for a period with any Myr with a extinction we need to sum Myr step-wise diversity
+            for gap in range(count2+2,count+1):
+                d=D_shelf[posS,gap-1]
+                d=np.minimum(d,K_shelf[posS,step])
                 d=np.maximum(d,D0)
-                #%D_shelf(posS,count)=d.*(1+rho_shelf(posS,count).*(1-(d./K_shelf(posS,step))).*Myr.*scaling);
-                d=K_shelf[posS,step]/ (1 + ((K_shelf[posS,step] / d) - 1) * np.exp(-rho_shelf[posS,count]*Myr*scaling.flatten()))
-                d=np.minimum(K_shelf[posS,step],d)
-                d=np.maximum(d,D0)
-                D_shelf[posS,count]=d #included to avoid explosive values due to the explonential growth nature
-                #print("Puntos exponencial")
-                #print(D_shelf[posS,count])
-                #input("Presiona Enter para continuar...")
-                rho_shelf_eff[posS,count] = rho_shelf[posS,count] * np.maximum(0, (1 - (d / K_shelf[posS,step])))
+
+                if np.logical_and(len(np.unique(rho_shelf[:,gap]))==1, np.all(np.unique(rho_shelf[:,gap]))<0):
+                    d=np.maximum(D0,d+d*rho_shelf[posS,gap]*scaling)#bounded by D0 
+                    D_shelf[posS,gap]=min(K_shelf[posS,step],d)
+
+                else:
+                    rho_shelf_eff[posS,gap] = rho_shelf[posS,gap]* np.maximum(0, (1 - (d / K_shelf[posS,step])))
+                    d=np.where(np.isnan(d), K_shelf[posS,step], np.minimum(K_shelf[posS,step],d+d*rho_shelf[posS,gap]*np.maximum(0, (1-(d/K_shelf[posS,step])))*scaling.flatten()))
+                    D_shelf[posS,gap]=np.maximum(D0,d)     
+                    
+            #else:
+            #    d=np.minimum(K_shelf[posS,step],d)
+            #    d=np.maximum(d,D0)
+            #    #%D_shelf(posS,count)=d.*(1+rho_shelf(posS,count).*(1-(d./K_shelf(posS,step))).*Myr.*scaling);
+            #    d=K_shelf[posS,step]/ (1 + ((K_shelf[posS,step] / d) - 1) * np.exp(-rho_shelf[posS,count]*Myr*scaling.flatten()))
+            #    d=np.minimum(K_shelf[posS,step],d)
+            #    d=np.maximum(d,D0)
+            #    D_shelf[posS,count]=d #included to avoid explosive values due to the explonential growth nature
+            #    #print("Puntos exponencial")
+            #    #print(D_shelf[posS,count])
+            #    #input("Presiona Enter para continuar...")
+            #    rho_shelf_eff[posS,count] = rho_shelf[posS,count] * np.maximum(0, (1 - (d / K_shelf[posS,step])))
 
             #ice=ice_shelf[:,step]
             #f=np.where(ice>0)[0]
