@@ -120,8 +120,8 @@ landShelfOceanMask = np.flip(landShelfOceanMask, axis=2)
 data_obis=np.load("datos_obis.npz")
 
 mean_obis=data_obis["mean_obis"]
-std_obis=data_obis["std_obis"]
-ids_obis=data_obis["ids_obis"]
+std_obis=data_obis["obis_error"]
+ids_obis=data_obis["index"]
 
 data_ice=scipy.io.loadmat('Point_ice_v241023.mat')
 ice_shelf=data_ice["ice_shelf"]
