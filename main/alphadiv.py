@@ -247,7 +247,7 @@ def alphadiv(Point_timeslices,shelf_lonlatAge,rho_shelf,K_shelf,latWindow,lonWin
             #f=np.where(ice>0)[0]
             #D_shelf[f,count]=D0
 
-        print("step: "+str(step))
+        #print("step: "+str(step))
         #print("count: "+str(count))
 
 

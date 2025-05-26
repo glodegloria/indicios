@@ -12,7 +12,7 @@ def run_chain(iChain):
     params_current=np.transpose(initial_theta[0,:])
     #output=inditek_metropolis(LonDeg, landShelfOcean_Lat,landShelfOcean_Lon, landShelfOceanMask, d_obis,se_obis, idx_obis, shelf_lonlatAge, Point_timeslices, food_shelf, temp_shelf, initial_theta[iChain,:], mu, sigma, sigma_prop, ran,  nsamples, nparams)
     #output=inditek_metropolis(       initial_theta[iChain,:],      )
-    output=inditek_metropolis(params_current, food_shelf, temp_shelf, Point_timeslices, shelf_lonlatAge, nsamples, nparams, d_obis,se_obis, idx_obis, landShelfOceanMask, landShelfOcean_Lat, landShelfOcean_Lon, LonDeg, mu, sigma, ran, sigma_prop)
+    output=inditek_metropolis(params_current, food_shelf, temp_shelf, Point_timeslices, shelf_lonlatAge, nsamples, nparams, mean_obis,std_obis, ids_obis, landShelfOceanMask, landShelfOcean_Lat, landShelfOcean_Lon, LonDeg, mu, sigma, ran, sigma_prop)
 
     return (
         output["params_proposed_history"], output["params_accepted_history"],
@@ -24,7 +24,7 @@ start=time.time()
 
 #MH-MCMC SETUP:
 num_chains=1
-nsamples=3
+nsamples=2
 nparams=7
 
 #Mean of parameters distributions (mu):
@@ -117,11 +117,11 @@ landShelfOcean_Lon=data_Mask['landShelfOcean_Lon']
 landShelfOceanMask=data_Mask['landShelfOceanMask']
 landShelfOceanMask = np.flip(landShelfOceanMask, axis=2)
 
-data_obis=scipy.io.loadmat("obis_data.mat")
+data_obis=np.load("datos_obis.npz")
 
-d_obis=data_obis["d_obis"]
-se_obis=data_obis["se_obis"]
-idx_obis=data_obis["idx_obis"]
+mean_obis=data_obis["mean_obis"]
+std_obis=data_obis["std_obis"]
+ids_obis=data_obis["ids_obis"]
 
 data_ice=scipy.io.loadmat('Point_ice_v241023.mat')
 ice_shelf=data_ice["ice_shelf"]

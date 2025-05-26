@@ -54,7 +54,7 @@ import mat73
 #END OF LOADING DATA
 #########################################################
 
-def inditek_metropolis(params_current, food_shelf, temp_shelf, Point_timeslices, shelf_lonlatAge, nsamples, nparams, d_obis,se_obis, idx_obis, landShelfOceanMask, landShelfOcean_Lat, landShelfOcean_Lon, LonDeg, mu, sigma, ran, sigma_prop):
+def inditek_metropolis(params_current, food_shelf, temp_shelf, Point_timeslices, shelf_lonlatAge, nsamples, nparams, mean_obis,std_obis, ids_obis, landShelfOceanMask, landShelfOcean_Lat, landShelfOcean_Lon, LonDeg, mu, sigma, ran, sigma_prop):
 
 
     #Charge the fix parameters
@@ -111,7 +111,7 @@ def inditek_metropolis(params_current, food_shelf, temp_shelf, Point_timeslices,
 
             #Create the array to store the change of parameters in each iteration
         #change_params=[[] for i in range(7)]
-    n_AR=3
+    n_AR=50
     change_params=np.full([nparams,n_AR], np.nan)
 
     #Initialize the scalar index2, it is used to check if the parameter has changed in each iteration
@@ -175,7 +175,7 @@ def inditek_metropolis(params_current, food_shelf, temp_shelf, Point_timeslices,
         if np.all(params_proposed <= ran[:,1]) and np.all(params_proposed >=ran[:,0]):
             #Run the model and Calculate the RSS (residual sum of squares) for the proposed parameters
             #rss_proposed = np.random.uniform(100, 5000) #aleatorio, para no gastar tanto tiempo
-            rss_proposed=principal(kfood, params_proposed[1], food_shelf, temp_shelf, ext_pattern, params_proposed[0], params_proposed[2], params_proposed[3], params_proposed[4], params_proposed[5], params_proposed[6], shelf_lonlatAge, Point_timeslices, latWindow,lonWindow,LonDeg, landShelfOcean_Lat,landShelfOcean_Lon, landShelfOceanMask, d_obis,se_obis,idx_obis) #con 7 parametros
+            rss_proposed=principal(kfood, params_proposed[1], food_shelf, temp_shelf, ext_pattern, params_proposed[0], params_proposed[2], params_proposed[3], params_proposed[4], params_proposed[5], params_proposed[6], shelf_lonlatAge, Point_timeslices, latWindow,lonWindow,LonDeg, landShelfOcean_Lat,landShelfOcean_Lon, landShelfOceanMask, mean_obis,std_obis,ids_obis) #con 7 parametros
             #rss_proposed=principal(kfood, Kmin, food_shelf, temp_shelf, ext_pattern, params_proposed[0], spec_min_mean, params_proposed[1], params_proposed[2], params_proposed[3], params_proposed[4], shelf_lonlatAge, Point_timeslices, latWindow,lonWindow,LonDeg, landShelfOcean_Lat,landShelfOcean_Lon, landShelfOceanMask, d_obis,se_obis,idx_obis) #con 5 parametros
 
             #as before, calculate the log(prior), log(likelihood) and log(posterior) of proposed parameters to compare to the current ones in the loop
