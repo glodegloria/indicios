@@ -92,7 +92,7 @@ def inditek_metropolis(params_current, food_shelf, temp_shelf, Point_timeslices,
 
     #rss_current=principal(params_current[0], params_current[1], params_current[2], params_current[3], params_current[4])
     #rss_current = np.random.uniform(100, 5000)
-    rss_current=principal(kfood, params_current[1], food_shelf, temp_shelf, ext_pattern, params_current[0], params_current[2], params_current[3], params_current[4], params_current[5], params_current[6], shelf_lonlatAge, Point_timeslices, latWindow,lonWindow,LonDeg, landShelfOcean_Lat,landShelfOcean_Lon, landShelfOceanMask, d_obis,se_obis,idx_obis)
+    rss_current=principal(kfood, params_current[1], food_shelf, temp_shelf, ext_pattern, params_current[0], params_current[2], params_current[3], params_current[4], params_current[5], params_current[6], shelf_lonlatAge, Point_timeslices, latWindow,lonWindow,LonDeg, landShelfOcean_Lat,landShelfOcean_Lon, landShelfOceanMask, mean_obis,std_obis,ids_obis)
     #print("params_current")
     #print(params_current)
     temp=np.zeros(nparams)#force those with uniform distribution to a probability of 1 along the range (log(1)=0;)
