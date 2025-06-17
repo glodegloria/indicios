@@ -5,10 +5,12 @@ from haversine_distance import haversine_distance
 
 
 
-def alphadiv(Point_timeslices,shelf_lonlatAge,rho_shelf,K_shelf,latWindow,lonWindow,LonDeg):
+def alphadiv(Point_timeslices,shelf_lonlatAge,rho_shelf,K_shelf,latWindow,lonWindow,LonDeg, ext_index):
+
+    a1= a2= a3= a4= a5= a6= a7=a8= a9= a10= a11= a12= a13= a14=  a15=0
 
     pt=Point_timeslices# position of 82 time slices in the 542 Myr (starting from 0 Ma (million tears ago)+1=position 1) to retrieve only that info from the final data matrix
-    pt=np.fliplr(pt).flatten()
+    pt=np.flip(pt)
 
 
     # 1. Calculate alpha diversity from points
@@ -19,9 +21,9 @@ def alphadiv(Point_timeslices,shelf_lonlatAge,rho_shelf,K_shelf,latWindow,lonWin
 
     count=-1 #time frame resolved (MA) (there are 82 timeframes out of 542MA defined by the Point_timeslices)
     step=0 # 82 time frames (steps in the loop)
-    ts2=Point_timeslices[0][0]+1 #next timeframe after ts (to fill the gap between both at each loop)
+    ts2=Point_timeslices[0]+1 #next timeframe after ts (to fill the gap between both at each loop)
 
-    for ts in Point_timeslices[0]:
+    for ts in Point_timeslices:
 
         count += (ts2-ts)#Update the count variable
 
@@ -33,9 +35,9 @@ def alphadiv(Point_timeslices,shelf_lonlatAge,rho_shelf,K_shelf,latWindow,lonWin
 
 
         # Initialize diversity for the first timeframe (ts == Point_timeslices(1))
-        if ts == Point_timeslices[0][0]:
+        if ts == Point_timeslices[0]:
             D_shelf[posS, count] = D0 #seed the coastal platform with 1 genus everywhere (to every active point) at time 541Ma
-
+            
         else:
 
             deltaAgeS = ageS[posS] - shelf_lonlatAge[posS, step - 1, 2] #(age at time ts) - (age at time ts-1)
@@ -45,7 +47,7 @@ def alphadiv(Point_timeslices,shelf_lonlatAge,rho_shelf,K_shelf,latWindow,lonWin
         # Points that didn't exist or were not inundated in time t-1 and are now active
 
 
-            pos2S = posS[np.logical_and(np.isnan(deltaAgeS), ageS[posS] <= ts2 - ts)]#Here it selects the points that doesn't exist.
+            pos2S = posS[np.logical_and(np.isnan(deltaAgeS), ageS[posS] <= ts2 - ts)]#Here it selects the points that doesn't exist at time t-1
             pos2S=np.concatenate((pos2S,posS[np.logical_and(shelf_lonlatAge[posS,step-1,2]==0,ageS[posS]<=ts2-ts)]))#Here it selects the points that are 0 years old
 
 
@@ -79,8 +81,11 @@ def alphadiv(Point_timeslices,shelf_lonlatAge,rho_shelf,K_shelf,latWindow,lonWin
 
                     if f.size==0:
                         d=D0 # No point with accumulated diversity found, initialize with D0
+                        a1+=1
 
                     else:#If find points with diversity in the area
+
+                        a2+=1
 
                         neighbor_lonlat=np.array([shelf_lonlatAge[posS[lim], step, 0],shelf_lonlatAge[posS[lim], step, 1]])
                         dist=haversine_distance(point_lonlat, neighbor_lonlat)#Calculate the distance to all the points in the area
@@ -97,20 +102,25 @@ def alphadiv(Point_timeslices,shelf_lonlatAge,rho_shelf,K_shelf,latWindow,lonWin
                     #boundaries between the carrying capacity (K_shelf) and D0 (1 genus area^(-1))
 
                     if d>K_shelf[pos2S[k],step]:
+                        a3+=1
                         d=K_shelf[pos2S[k],step] #force local extinction if imported diversity is greater than K.
                     elif d<D0:
+                        a4+=1
                         d=D0 #force d to be at least D0, 1.
 
 
                     # diversification keeping d in between D0 and local K bounds
-                    if np.logical_and(len(np.unique(rho_shelf[:,count2+1]))==1, np.all(np.unique(rho_shelf[:,count2+1]))<0): # extinction period
+                    #if np.logical_and(len(np.unique(rho_shelf[:,count2+1]))==1, np.all(np.unique(rho_shelf[:,count2+1]))<0): # extinction period
+                    if count2+1 in ext_index:
 
                         d=max(D0,d+rho_shelf[pos2S[k],count2+1]*d)#bounded by D0
                         D_shelf[pos2S[k],count2+1]=min(K_shelf[pos2S[k],step],d)#bounded by K_shelf (The carrying capacity)
+                        a5+=1
                     else: # normal diversification period
 
                         d=min(K_shelf[pos2S[k],step],d+rho_shelf[pos2S[k],count2+1]*d*(max(0,1-(d/K_shelf[pos2S[k],step])))) 
                         D_shelf[pos2S[k],count2+1]=max(D0,d)
+                        a6+=1
 
             # #2# Special case of continental shelf points that did not exist in
             #time-1 and were artificially added in the Gplates model to fill gaps 
@@ -152,18 +162,22 @@ def alphadiv(Point_timeslices,shelf_lonlatAge,rho_shelf,K_shelf,latWindow,lonWin
 
                     if d>K_shelf[pos2S[k],step]:
                         d=K_shelf[pos2S[k],step] #force local extinction if imported diversity is greater than K.
+                        a7+=1
                     elif d<D0:
                         d=D0 #force d to be at least D0, 1.
+                        a8+=1
 
                         # diversification keeping d in between D0 and local K bounds
                         #equal to the previous case
-                    if np.logical_and(len(np.unique(rho_shelf[:,count2+1]))==1, np.all(np.unique(rho_shelf[:,count2+1]))<0): # extinction period
+                    if count2+1 in ext_index:# extinction period
                         d=max(D0,d+rho_shelf[pos2S[k],count2+1]*d)#bounded by D0
                         D_shelf[pos2S[k],count2+1]=min(K_shelf[pos2S[k],step],d)#bounded by K_shelf (The carrying capacity)
+                        a9+=1
                 
                     else: # normal diversification period
                         d=min(K_shelf[pos2S[k],step],d+rho_shelf[pos2S[k],count2+1]*d*(max(0,1-(d/K_shelf[pos2S[k],step])))) 
                         D_shelf[pos2S[k],count2+1]=max(D0,d) 
+                        a10+=1
 
              #3# Normal points
 
@@ -177,14 +191,16 @@ def alphadiv(Point_timeslices,shelf_lonlatAge,rho_shelf,K_shelf,latWindow,lonWin
 
             d=np.maximum(D0,d)#bounded by D0
 
-            if np.logical_and(len(np.unique(rho_shelf[:,count2+1]))==1, np.all(np.unique(rho_shelf[:,count2+1]))<0): # extinction period
+            if count2+1 in ext_index:#if suffers an extinction
                 d=np.maximum(D0,d+rho_shelf[pos2S,count2+1]*d)#bounded by D0
                 D_shelf[pos2S,count2+1]=np.minimum(K_shelf[pos2S,step],d)#bounded by K_shelf (The carrying capacity)
+                a11+=1
 
             else: # normal diversification period
                 rho_shelf_eff[pos2S,count2+1] = rho_shelf[pos2S,count2+1]* np.maximum(0, (1 - (d / K_shelf[pos2S,step])))
                 d=np.minimum(K_shelf[pos2S,step],d+d*rho_shelf[pos2S,count2+1]*(1-(d/K_shelf[pos2S,step])))
-                D_shelf[pos2S,count2+1]=np.maximum(D0,d)
+                D_shelf[pos2S,count2+1]=np.maximum(D0,d) 
+                a12+=1
 
             #All active points (the 3 kinds defined by #N# above) accumulate diversity along the time gap
 
@@ -201,29 +217,36 @@ def alphadiv(Point_timeslices,shelf_lonlatAge,rho_shelf,K_shelf,latWindow,lonWin
 
             rho=rho_shelf[count2+2:count,:]
 
-            if sum(sum(rho<0))>0: #for a period with any Myr with a extinction we need to sum Myr step-wise diversity
+            if np.any(np.isin(np.arange(count2 + 2, count+1), ext_index)): #for a period with any Myr with a extinction we need to sum Myr step-wise diversity
                 for gap in range(count2+2,count+1):
                     d=D_shelf[posS,gap-1]
+
+
 
 
                     d=np.minimum(d,K_shelf[posS,step])
                     d=np.maximum(d,D0)
 
-
-                    if np.logical_and(len(np.unique(rho_shelf[:,gap]))==1, np.all(np.unique(rho_shelf[:,gap]))<0):
-                        d=np.maximum(D0,d+d*rho_shelf[posS,gap]*scaling)#bounded by D0 
-                        D_shelf[posS,gap]=min(K_shelf[posS,step],d)
+                    if gap in ext_index: #if suffers an extinction
+                        
+                        d=np.maximum(D0,d+d*rho_shelf[posS,gap]*scaling.flatten())#bounded by D0 
+                        #print("D0",D0.shape)
+                        A=d*rho_shelf[posS,gap]*scaling
+                        #print("multiplica",A.shape)
+                        #print("scaling",scaling.shape)
+                        #print("rho_shelf",rho_shelf[posS,gap].shape)
+                        D_shelf[posS,gap]=np.minimum(K_shelf[posS,step],d)
+                        a13+=1
+                        #print(D_shelf[posS,gap].shape)
+                        #print(np.minimum(K_shelf[posS,step],d).shape)
+                        
                         
                     else:
                         rho_shelf_eff[posS,gap] = rho_shelf[posS,gap]* np.maximum(0, (1 - (d / K_shelf[posS,step])))
                         d=np.where(np.isnan(d), K_shelf[posS,step], np.minimum(K_shelf[posS,step],d+d*rho_shelf[posS,gap]*np.maximum(0, (1-(d/K_shelf[posS,step])))*scaling.flatten()))
                         D_shelf[posS,gap]=np.maximum(D0,d)   
+                        a14+=1
  
-                #print("extincion")
-                #resultado = d[~np.isnan(d) & (d != 1)]
-
-                #print("resultado")
-                #print(resultado)
             else: #for a period without extinction we can apply the logistic growth for as an exponential approaching
                 # saturation by the Myr gap to skip the sum loop
                 d=np.minimum(K_shelf[posS,step],d)
@@ -232,6 +255,7 @@ def alphadiv(Point_timeslices,shelf_lonlatAge,rho_shelf,K_shelf,latWindow,lonWin
                 d=K_shelf[posS,step]/ (1 + ((K_shelf[posS,step] / d) - 1) * np.exp(-rho_shelf[posS,count]*Myr*scaling.flatten()))
                 d=np.minimum(K_shelf[posS,step],d)
                 d=np.maximum(d,D0)
+                a15+=1
 
                 #resultado = d[~np.isnan(d) & (d != 1)]
                 
@@ -247,14 +271,16 @@ def alphadiv(Point_timeslices,shelf_lonlatAge,rho_shelf,K_shelf,latWindow,lonWin
             #f=np.where(ice>0)[0]
             #D_shelf[f,count]=D0
 
-        print("step: "+str(step))
-        #print("count: "+str(count))
+        #print("step: "+str(step))
+        #print("count2+1: "+str(count2+1))
 
 
         #Set the ts (time slice), count and step variables for the next iteration
         ts2=ts
         count2=count
         step = step + 1
+
+        #print("count2+1: "+str(count2+1))
 
         
     # Flip to order from point time slice 1 (0MA) to 542 (541MA) and get the Point time slices
@@ -275,6 +301,9 @@ def alphadiv(Point_timeslices,shelf_lonlatAge,rho_shelf,K_shelf,latWindow,lonWin
 
 
     #To save the data in a .npz file for tests
-    #np.savez("datos_finales.npz", D_shelf=D_shelf, rho_shelf_eff=rho_shelf_eff)
+    #np.savez("datos_finales_alphadiv.npz", D_shelf=D_shelf, rho_shelf_eff=rho_shelf_eff)
+
+    #print(f"a1: {a1}, a2: {a2}, a3: {a3}, a4: {a4}, a5: {a5}, a6: {a6}, a7: {a7}, a8: {a8}, a9: {a9} ")
+    #print(f"a10: {a10}, a11: {a11}, a12: {a12}, a13: {a13}, a14: {a14}, a15: {a15} ")
 
     return rho_shelf_eff, D_shelf  
