@@ -8,8 +8,10 @@ def rhonet_evo(kfood,Kmin,food_shelf,temp_shelf,ext_pattern,Kmax_mean,spec_min_m
     
 
     rhoExt=data.iloc[:,ext_pattern]
+    time=data.iloc[:,0]
+    time_ext=time[rhoExt<0]
 
-    rhoExtshelf = np.tile(rhoExt, (shelf_lonlatAge.shape[0], 1))  
+    rho_shelf = np.tile(rhoExt, (shelf_lonlatAge.shape[0], 1))  
     #print(rhoExtshelf.shape)
 
     #Calculate Carrying Capacity (K) according to the range of greatest and lowest food available in the whole time series, 
@@ -86,39 +88,95 @@ def rhonet_evo(kfood,Kmin,food_shelf,temp_shelf,ext_pattern,Kmax_mean,spec_min_m
     #Calculate Net Diversification Rate (rho) - Unconstrained
     rho_shelf1 = speciation_shelf - extinction_shelf
 
+    #############################################################################
+    #Hasta aqui hay que hacerlo si o si, obligatorio
+    #############################################################################
+
     #Incorporate Mass Extinctions and Fill Gaps
-    rho_shelf=rhoExtshelf
-    all_timeslices = np.arange(Point_timeslices[0][0], -1, -1)#Begin in 0 (because the last one is -1), if not it shows a problem
-    postPT=np.full([len(Point_timeslices[0]),1], np.nan)
+    all_timeslices = np.arange(Point_timeslices[0], -1, -1)#Begin in 0 (because the last one is -1), if not it shows a problem
 
-    # save rho for the 82 time frames at their corresponding position (posPT) in the -541MA:-1MA:0MA frames 
-    # that alraeady have the big extinction (rho<0) timeframes incorporated
+    #Save the years that have suffer the mass extinctions
+    mass_ext_years=abs(time_ext)
+    totalyears=Point_timeslices[0]+1
 
+    #Create a boolean vector of size totalyears to mark the timeslices that are in Point_timeslices
+    point_mask = np.zeros(totalyears, dtype=bool)
+    point_mask[Point_timeslices] = True
 
-    for i in range(len(Point_timeslices[0])):
-
-        a=np.where(all_timeslices==Point_timeslices[0][i])[0][0]#Select in all the sequence the years, just the ones that are in the Point_timeslices
-        f=np.where(rho_shelf[:,a]<0)#Select the years in point_timeslices (the ones that appear in slices) that suffers a mass extinction
-
-        #print(f)
-        if f[0].size == 0:#If it doesn't suffers a mass extinctions
-            #print(rho_ocean1[:,i])
-            rho_shelf[:,a]=rho_shelf1[:,i]# It can be in both a because in the first one it goes from 1 to 541 just with the extinction ones, and in the second one it goes from 1 to 82
-            postPT[i]=a
-
-    postPT = postPT[~np.isnan(postPT)].astype(int)
-
-    #Fill gaps by copying values from next point_timeslice
+    #Create a boolean vector of size totalyears to mark the timeslices that have mass extinctions
+    ext_mask = np.zeros(totalyears, dtype=bool)
+    ext_mask[mass_ext_years] = True
 
 
-    f=np.where(rho_shelf[0,:]==0.01)[0]
-    for i in range(0,len(postPT)-1):
+    #Select in the vector with the mask extinctions, the years that are in the Point_timeslices
+    ext_mask = np.array(ext_mask).flatten()
+    valid_mask = ~ext_mask[Point_timeslices]
+
+    #Select in the Point_timeslices, the ones that don't suffer mass extinctions
+    valid_timeslices = Point_timeslices[valid_mask]
+
+    #Create a new array with the index that are in the Point_timeslices and don't suffer mass extinctions
+    point_indices = np.nonzero(np.isin(all_timeslices, valid_timeslices))[0]
+
+    #Copy in rho_shelf the values of rho_shelf1 that are in the Point_timeslices and don't suffer mass extinctions
+    rho_shelf[:,point_indices]=rho_shelf1[:, valid_mask]
+
+    #empty_cols = np.where(rho_shelf[0, :] == 0.01)[0]
+    sorted_pts = np.sort(point_indices)
+
+    #For the points that don't have mass extinctions and are not in the Point_timeslice, fill with the rho_shelf info of the next point_timeslice
+    for i in range(len(sorted_pts) - 1):
+        start = sorted_pts[i]
+        end = sorted_pts[i + 1]
+        gap_cols = np.where((rho_shelf[0, :] == 0.01) & (np.arange(542) > start) & (np.arange(542) < end))[0]
+        if len(gap_cols) > 0:
+            #print(sorted_pts[i], sorted_pts[i + 1], gap_cols)
+            rho_shelf[:, gap_cols] = rho_shelf[:, end][:, np.newaxis]
+
+    #create an index of the timeslices that have mass extinctions, to be used later
+    ext_index=np.nonzero(np.isin(all_timeslices, abs(time_ext)))[0]
 
 
-        v=f[np.where((f > postPT[i].item()) & (f < postPT[i + 1].item()))[0]]
-        data_to_tile=rho_shelf[:, postPT[i+1]][:, np.newaxis]
-        rho_shelf[:,v]=np.tile(data_to_tile, (1, len(v)))
-        #rho_shelf[:,v]=np.tile(rho_shelf[:,postPT[i+1]],(len(v),1))
-        #print(rho_shelf)
 
-    return rho_shelf,K_shelf
+    #postPT=np.full([len(Point_timeslices[0]),1], np.nan)
+#
+    ## save rho for the 82 time frames at their corresponding position (posPT) in the -541MA:-1MA:0MA frames 
+    ## that alraeady have the big extinction (rho<0) timeframes incorporated
+#
+#
+    #for i in range(len(Point_timeslices[0])):
+#
+    #    a=np.where(all_timeslices==Point_timeslices[0][i])[0][0]#Select in all the sequence the years, just the ones that are in the Point_timeslices
+    #    
+    #    f=np.where(rho_shelf[:,a]<0)#Select the years in point_timeslices (the ones that appear in slices) that suffers a mass extinction
+#
+    #    #print(f)
+    #    if f[0].size == 0:#If it doesn't suffers a mass extinctions
+    #        #print(rho_ocean1[:,i])
+    #        rho_shelf[:,a]=rho_shelf1[:,i]# It can be in both a because in the first one it goes from 1 to 541 just with the extinction ones, and in the second one it goes from 1 to 82
+    #        postPT[i]=a
+    #        print("a", a)
+    #        print("all_time_slices",all_timeslices[a])
+#
+    ##print(postPT)
+#
+    #postPT = postPT[~np.isnan(postPT)].astype(int)
+#
+    ##print(postPT)
+
+    #Fill the gaps that don't have extinction and are not in the pointslices by copying values from next point_timeslice
+
+
+    #f=np.where(rho_shelf[0,:]==0.01)[0]
+    #for i in range(0,len(postPT)-1):
+#
+    #    #print(postPT[i])
+    #    v=f[np.where((f > postPT[i].item()) & (f < postPT[i + 1].item()))[0]]
+    #    data_to_tile=rho_shelf[:, postPT[i+1]][:, np.newaxis]
+    #    rho_shelf[:,v]=np.tile(data_to_tile, (1, len(v)))
+    #    #rho_shelf[:,v]=np.tile(rho_shelf[:,postPT[i+1]],(len(v),1))
+    #    #print(rho_shelf)
+#
+    #np.savez("datos_finales_rhonet_cambiados.npz", K_shelf=K_shelf, rho_shelf=rho_shelf, rho_original=rho_shelf1)
+
+    return rho_shelf,K_shelf, ext_index
