@@ -4,7 +4,8 @@ import scipy.io
 import time
 import mat73
 
-def inditek_metropolis(LonDeg, landShelfOcean_Lat,landShelfOcean_Lon, landShelfOceanMask, d_obis,se_obis,idx_obis, shelf_lonlatAge, Point_timeslices, food_shelf, temp_shelf, params_current, mu, sigma, sigma_prop, ran,  nsamples, nparams):
+def inditek_metropolis(params_current, food_shelf, temp_shelf, Point_timeslices, shelf_lonlatAge, nsamples, nparams, mean_obis,std_obis, ids_obis, landShelfOceanMask, landShelfOcean_Lat, landShelfOcean_Lon, LonDeg, mu, sigma, ran, sigma_prop):
+#def inditek_metropolis(LonDeg, landShelfOcean_Lat,landShelfOcean_Lon, landShelfOceanMask, mean_obis,std_obis,ids_obis, shelf_lonlatAge, Point_timeslices, food_shelf, temp_shelf, params_current, mu, sigma, sigma_prop, ran,  nsamples, nparams):
 
 
 ###############################################################################################
@@ -14,7 +15,7 @@ def inditek_metropolis(LonDeg, landShelfOcean_Lat,landShelfOcean_Lon, landShelfO
 #shelf_lonlatAge=data_point_ages['shelf_lonlatAge']
 #Point_timeslices=data_point_ages['Point_timeslices']
 ##
-#data_mask=mat73.loadmat('landShelfOceanMask_ContMargMaskKocsisScotese.mat')
+#data_mask=mat73.loadmat('landShelfOceanMask_ContMargMaskKocsisScotese.mat') 
 #landShelfOcean_Lat=data_mask['landShelfOcean_Lat']
 #landShelfOcean_Lon=data_mask['landShelfOcean_Lon']
 #landShelfOceanMask=data_mask['landShelfOceanMask']
@@ -82,7 +83,7 @@ def inditek_metropolis(LonDeg, landShelfOcean_Lat,landShelfOcean_Lon, landShelfO
 
     #Calculates the initial RSS (residual sum of squares) for the current parameters
     #rss_current = np.random.uniform(100, 5000)
-    rss_current=principal(kfood, Kmin, food_shelf, temp_shelf, ext_pattern, params_current[0], spec_min_mean, params_current[1], params_current[2], params_current[3], params_current[4], shelf_lonlatAge, Point_timeslices, latWindow,lonWindow,LonDeg, landShelfOcean_Lat,landShelfOcean_Lon, landShelfOceanMask, d_obis,se_obis,idx_obis)
+    rss_current=principal(kfood, params_current[1], food_shelf, temp_shelf, ext_pattern, params_current[0], params_current[2], params_current[3], params_current[4], params_current[5], params_current[6], shelf_lonlatAge, Point_timeslices, latWindow,lonWindow,LonDeg, landShelfOcean_Lat,landShelfOcean_Lon, landShelfOceanMask, mean_obis,std_obis,ids_obis)
     temp=np.zeros([nparams,1]) #force those with uniform distribution to a probability of 1 along the range (log(1)=0;)
     if gaus.size>0: 
         temp[gaus]=((params_current[gaus] - mu[gaus]) / sigma[gaus])**2
@@ -103,6 +104,7 @@ def inditek_metropolis(LonDeg, landShelfOcean_Lat,landShelfOcean_Lon, landShelfO
     # Ensure Kmax_mean is an integer (maximum number of species in a location (particle)
 
     params_proposed[0]=np.round(params_proposed[0])
+    params_proposed[1]=np.round(params_proposed[1])
 
 
 
@@ -117,8 +119,8 @@ def inditek_metropolis(LonDeg, landShelfOcean_Lat,landShelfOcean_Lon, landShelfO
         #Ensure Kmax_mean is an integer (maximum number of species in a location (particle))
         params_proposed[0]=np.round(params_proposed[0])
 
-        print("params_proposed")
-        print(params_proposed)
+        #print("params_proposed")
+        #print(params_proposed)
 
         #I run the acceptance procedure if all my parameters are in bounds (between the range defined in inditek_indicios)
 
@@ -126,7 +128,7 @@ def inditek_metropolis(LonDeg, landShelfOcean_Lat,landShelfOcean_Lon, landShelfO
 
             #Run the model and Calculate the RSS (residual sum of squares) for the proposed parameters
             #rss_proposed = np.random.uniform(100, 5000)
-            rss_proposed=principal(kfood, Kmin, food_shelf, temp_shelf, ext_pattern, params_proposed[0], spec_min_mean, params_proposed[1], params_proposed[2], params_proposed[3], params_proposed[4], shelf_lonlatAge, Point_timeslices, latWindow,lonWindow,LonDeg, landShelfOcean_Lat,landShelfOcean_Lon, landShelfOceanMask, d_obis,se_obis,idx_obis)
+            rss_proposed=principal(kfood, params_proposed[1], food_shelf, temp_shelf, ext_pattern, params_proposed[0], params_proposed[2], params_proposed[3], params_proposed[4], params_proposed[5], params_proposed[6], shelf_lonlatAge, Point_timeslices, latWindow,lonWindow,LonDeg, landShelfOcean_Lat,landShelfOcean_Lon, landShelfOceanMask, mean_obis,std_obis,ids_obis) #con 7 parametros
 
 
             #as before, calculate the log(prior), log(likelihood) and log(posterior) of proposed parameters to compare to the current ones in the loop
@@ -177,8 +179,8 @@ def inditek_metropolis(LonDeg, landShelfOcean_Lat,landShelfOcean_Lon, landShelfO
                 acceptance_tagmark=0
                 # DO NOT UPDATE FOR NEXT ITERATION
 
-            print("acceptance_tagmark")
-            print(acceptance_tagmark)
+            #print("acceptance_tagmark")
+            #print(acceptance_tagmark)
             output["acceptance_history"][iter]=acceptance_tagmark
 
         else:
@@ -190,9 +192,9 @@ def inditek_metropolis(LonDeg, landShelfOcean_Lat,landShelfOcean_Lon, landShelfO
             output["log_posterior_diff_history"][iter]=np.nan
             output["acceptance_history"][iter]=0
 
-        print("#########################################################################")
-        print("HECHO UNA ITERACION")
-        print("############################################################################")
+        #print("#########################################################################")
+        #print("HECHO UNA ITERACION")
+        #print("############################################################################")
         #input("Press enter to continue")
 
         #print(output["rss_proposed_history"])
