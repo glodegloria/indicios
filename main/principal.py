@@ -4,15 +4,15 @@ import numpy as np
 import pandas as pd
 import time
 from rhonet import rhonet_evo
-from alphadiv_opt import alphadiv
-from gridMean import inditek_gridMean_alphadiv
-from model_obis import inditek_model_obisScaled
+from alphadiv import alphadiv
+from grid_mean import inditek_gridMean_alphadiv
+from model_obis_new import inditek_model_obisScaled
 
 start_time = time.time()
 
 
 #def principal(Kmax_mean, spec_max_mean, Q10_mean, ext_intercept_shelf_mean,ext_slope_mean):
-def principal(kfood, Kmin, food_shelf, temp_shelf, ext_pattern, Kmax_mean, spec_min_mean, spec_max_mean, Q10_mean, ext_intercept_shelf_mean,ext_slope_mean, shelf_lonlatAge, Point_timeslices, latWindow,lonWindow,LonDeg, landShelfOcean_Lat,landShelfOcean_Lon, landShelfOceanMask, d_obis,se_obis,idx_obis):
+def principal(kfood, Kmin, food_shelf, temp_shelf, ext_pattern, Kmax_mean, spec_min_mean, spec_max_mean, Q10_mean, ext_intercept_shelf_mean,ext_slope_mean, shelf_lonlatAge, Point_timeslices, latWindow,lonWindow,LonDeg, landShelfOcean_Lat,landShelfOcean_Lon, landShelfOceanMask, mean_obis,std_obis,ids_obis):
 
 #############################################################################################
 # JUST FOR TESTING PURPOSES
@@ -63,30 +63,30 @@ def principal(kfood, Kmin, food_shelf, temp_shelf, ext_pattern, Kmax_mean, spec_
 #d_obis=data_obis["d_obis"]
 #se_obis=data_obis["se_obis"]
 #idx_obis=data_obis["idx_obis"]
-
-##############################################
+#############################################
 #END OF LOADING DATA
-##############################################
+#############################################
 
 #Calls the rhonet_evo function to calculate the rho_shelf and K_shelf matrices.
-     [rho_shelf,K_shelf]=rhonet_evo(kfood,Kmin,food_shelf,temp_shelf,ext_pattern,Kmax_mean,spec_min_mean,spec_max_mean, Q10_mean,ext_intercept_shelf_mean,ext_slope_mean,shelf_lonlatAge,Point_timeslices)
+     [rho_shelf,K_shelf, ext_index]=rhonet_evo(kfood,Kmin,food_shelf,temp_shelf,ext_pattern,Kmax_mean,spec_min_mean,spec_max_mean, Q10_mean,ext_intercept_shelf_mean,ext_slope_mean,shelf_lonlatAge,Point_timeslices)
 
-#Calls the alphadiv function to calculate the D_shelf matrix.
-     [rho_shelf_eff,D_shelf]=alphadiv(Point_timeslices,shelf_lonlatAge,rho_shelf,K_shelf,latWindow,lonWindow,LonDeg)
+#print("YA")
+          #Calls the alphadiv function to calculate the D_shelf matrix.
+     [rho_shelf_eff,D_shelf]=alphadiv(Point_timeslices,shelf_lonlatAge,rho_shelf,K_shelf,latWindow,lonWindow,LonDeg, ext_index)
 
-#Calls the inditek_gridMean_alphadiv function to calculate the grid that covers the earth surface and the mean of the diversity in each grid cell.
-     [X,Y,D]=inditek_gridMean_alphadiv(D_shelf,shelf_lonlatAge,landShelfOcean_Lat,landShelfOcean_Lon, landShelfOceanMask)
+          #Calls the inditek_gridMean_alphadiv function to calculate the grid that covers the earth surface and the mean of the diversity in each grid cell.
+     D=inditek_gridMean_alphadiv(D_shelf,ids_obis)
 
-     #Calculates the rss (Residual Sum of Squares) comparing the model diversity with the observed diversity.
-     #This function will be changed soon to include the new data from OBIS.
-     rss=inditek_model_obisScaled(D,X,Y,d_obis,se_obis,idx_obis) 
+          #Calculates the rss (Residual Sum of Squares) comparing the model diversity with the observed diversity.
+          #This function will be changed soon to include the new data from OBIS.
+     rss=inditek_model_obisScaled(D,mean_obis, std_obis) 
 
      return rss
      #elapsed_time = time.time() - start_time
 
      #print(f"La función tardó {elapsed_time:.4f} segundos.")
 
-      
+
 
 
 
