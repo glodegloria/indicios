@@ -1,4 +1,4 @@
-# 🌍 Inditek MCMC Biodiversity Model
+# 🌍 Inditek 2.0
 
 [![Python](https://img.shields.io/badge/python-3.9%2B-blue.svg)](https://www.python.org/)  
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)  
