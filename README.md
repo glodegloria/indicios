@@ -4,7 +4,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)  
 [![Build Status](https://img.shields.io/badge/build-passing-brightgreen)](#)  
 
-This repository implements a **Metropolis-Hastings MCMC framework** to calibrate a **7-parameter ecological model** simulating biodiversity dynamics on continental shelves across geological time.  
+This repository implements a **Metropolis-Hastings MCMC framework** to calibrate a **5-parameter ecological model** simulating biodiversity dynamics on continental shelves across geological time.  
 The model integrates **food and temperature limitations**, **speciation/extinction processes**, and **spatially explicit diversity accumulation**.
 
 ---
