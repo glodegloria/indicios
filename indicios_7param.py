@@ -12,7 +12,7 @@ def run_chain(iChain):
     params_current=np.transpose(initial_theta[iChain,:])
     #output=inditek_metropolis(LonDeg, landShelfOcean_Lat,landShelfOcean_Lon, landShelfOceanMask, d_obis,se_obis, idx_obis, shelf_lonlatAge, Point_timeslices, food_shelf, temp_shelf, initial_theta[iChain,:], mu, sigma, sigma_prop, ran,  nsamples, nparams)
     #output=inditek_metropolis(       initial_theta[iChain,:],      )
-    output=inditek_metropolis(params_current, food_shelf, temp_shelf, Point_timeslices, shelf_lonlatAge, nsamples, nparams, mean_obis,std_obis, ids_obis, landShelfOceanMask, landShelfOcean_Lat, landShelfOcean_Lon, LonDeg, mu, sigma, ran, sigma_prop, proof, indices_pac, indices_med, indices_car, n_D)
+    output=inditek_metropolis(params_current, food_shelf, temp_shelf, Point_timeslices, shelf_lonlatAge, nsamples, nparams, landShelfOceanMask, landShelfOcean_Lat, landShelfOcean_Lon, LonDeg, mu, sigma, ran, sigma_prop, proof, indices_pac, indices_med, indices_car, n_D)
 
     return (
         output["params_proposed_history"], output["params_accepted_history"],
@@ -91,7 +91,7 @@ ran=np.array([[80,1000],[1,150],[0.001,np.inf],[0.0001,0.05],[1,4]])
 # Load input variables 
 #######################################################
 
-data_food_temp=scipy.io.loadmat('Point_foodtemp_paleoconfKocsisScotese_option2_GenieV4.mat')
+data_food_temp=scipy.io.loadmat('data/Point_foodtemp_paleoconfKocsisScotese_option2_GenieV4.mat')
 
 #print(data_food_temp.keys())
 #food_ocean=data['food_ocean']
@@ -99,19 +99,19 @@ food_shelf=data_food_temp['food_shelf']
 #temp_ocean=data['temp_ocean']
 temp_shelf=data_food_temp['temp_shelf']
 
-data_point_ages=scipy.io.loadmat('Point_ages_xyzKocsisScotese_400.mat')#
+data_point_ages=scipy.io.loadmat('data/Point_ages_xyzKocsisScotese_400.mat')#
 #print(data_point_ages.keys())
 #
 Point_timeslices=data_point_ages['Point_timeslices']
 #Point_timeslices = Point_timeslices[0]
 shelf_lonlatAge=data_point_ages['shelf_lonlatAge']
 
-data_LonDeg=scipy.io.loadmat('LonDeg.mat')
+data_LonDeg=scipy.io.loadmat('data/LonDeg.mat')
 #print(data_LonDeg.keys())
 
 LonDeg=data_LonDeg['LonDeg']
 
-data_Mask=mat73.loadmat('landShelfOceanMask_ContMargMaskKocsisScotese.mat')
+data_Mask=mat73.loadmat('data/landShelfOceanMask_ContMargMaskKocsisScotese.mat')
 #print(data_Mask.keys())
 
 landShelfOcean_Lat=data_Mask['landShelfOcean_Lat']
@@ -119,19 +119,19 @@ landShelfOcean_Lon=data_Mask['landShelfOcean_Lon']
 landShelfOceanMask=data_Mask['landShelfOceanMask']
 landShelfOceanMask = np.flip(landShelfOceanMask, axis=2)
 
-data_obis=np.load("datos_obis.npz")
+#data_obis=np.load("data/datos_obis.npz")
+#
+#mean_obis=data_obis["mean_obis"]
+#std_obis=data_obis["obis_error"]
+#ids_obis=data_obis["index"]
 
-mean_obis=data_obis["mean_obis"]
-std_obis=data_obis["obis_error"]
-ids_obis=data_obis["index"]
-
-data_ice=scipy.io.loadmat('Point_ice_v241023.mat')
+data_ice=scipy.io.loadmat('data/Point_ice_v241023.mat')
 ice_shelf=data_ice["ice_shelf"]
 
-data_proof=np.load("datos_proof.npz")
+data_proof=np.load("data/datos_proof_2.npz")
 proof=data_proof[ "proof"]
 
-indices=np.load("indices_points.npz")
+indices=np.load("data/indices_points.npz")
      
 indices_pac=indices["indices_pac"]
 indices_med=indices["indices_med"]

@@ -12,7 +12,7 @@ from inditek_model_proof import inditek_model_proof
 start_time = time.time()
 
 
-def principal(kfood, Kmin, food_shelf, temp_shelf, ext_pattern, Kmax_mean, spec_min_mean, spec_max_mean, Q10_mean, ext_intercept_shelf_mean,ext_slope_mean, shelf_lonlatAge, Point_timeslices, latWindow,lonWindow,LonDeg, landShelfOcean_Lat,landShelfOcean_Lon, landShelfOceanMask, mean_obis,std_obis,ids_obis, proof, indices_pac, indices_med, indices_car):
+def principal(kfood, Kmin, food_shelf, temp_shelf, ext_pattern, Kmax_mean, spec_min_mean, spec_max_mean, Q10_mean, ext_intercept_shelf_mean,ext_slope_mean, shelf_lonlatAge, Point_timeslices, latWindow,lonWindow,LonDeg, landShelfOcean_Lat,landShelfOcean_Lon, landShelfOceanMask, proof, indices_pac, indices_med, indices_car):
 #
 #############################################################################################
 # JUST FOR TESTING PURPOSES

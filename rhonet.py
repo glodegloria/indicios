@@ -4,7 +4,7 @@ import pandas as pd
 def rhonet_evo(kfood,Kmin,food_shelf,temp_shelf,ext_pattern,Kmax_mean,spec_min_mean,spec_max_mean, Q10_mean,ext_intercept_shelf_mean,ext_slope_mean,shelf_lonlatAge,Point_timeslices):
         
     
-    data=pd.read_csv('rhoExtOriginal_b.csv')
+    data=pd.read_csv('data/rhoExtOriginal_b.csv')
     
 
     rhoExt=data.iloc[:,ext_pattern]

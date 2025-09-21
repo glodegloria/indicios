@@ -54,7 +54,7 @@ import mat73
 #END OF LOADING DATA
 #########################################################
 
-def inditek_metropolis(params_current, food_shelf, temp_shelf, Point_timeslices, shelf_lonlatAge, nsamples, nparams, mean_obis,std_obis, ids_obis, landShelfOceanMask, landShelfOcean_Lat, landShelfOcean_Lon, LonDeg, mu, sigma, ran, sigma_prop, proof, indices_pac, indices_med, indices_car, n_D):
+def inditek_metropolis(params_current, food_shelf, temp_shelf, Point_timeslices, shelf_lonlatAge, nsamples, nparams, landShelfOceanMask, landShelfOcean_Lat, landShelfOcean_Lon, LonDeg, mu, sigma, ran, sigma_prop, proof, indices_pac, indices_med, indices_car, n_D):
 
 
     #Charge the fix parameters
@@ -97,7 +97,7 @@ def inditek_metropolis(params_current, food_shelf, temp_shelf, Point_timeslices,
     #Calculates the initial RSS (residual sum of squares) for the current parameters, it also saves the current global diversity and the 
     #diversity along time in the mediterranean, pacific and caribbean
 
-    [rss_current,D,  D_pac, D_med, D_car]=principal(kfood, params_current[1], food_shelf, temp_shelf, ext_pattern, params_current[0], params_current[3], params_current[2], params_current[4], ext_intercept, ext_slope, shelf_lonlatAge, Point_timeslices, latWindow,lonWindow,LonDeg, landShelfOcean_Lat,landShelfOcean_Lon, landShelfOceanMask, mean_obis,std_obis,ids_obis, proof, indices_pac, indices_med, indices_car)
+    [rss_current,D,  D_pac, D_med, D_car]=principal(kfood, params_current[1], food_shelf, temp_shelf, ext_pattern, params_current[0], params_current[3], params_current[2], params_current[4], ext_intercept, ext_slope, shelf_lonlatAge, Point_timeslices, latWindow,lonWindow,LonDeg, landShelfOcean_Lat,landShelfOcean_Lon, landShelfOceanMask, proof, indices_pac, indices_med, indices_car)
 
     temp=np.zeros(nparams)#force those with uniform distribution to a probability of 1 along the range (log(1)=0;)
     if gaus.size>0:
@@ -115,7 +115,7 @@ def inditek_metropolis(params_current, food_shelf, temp_shelf, Point_timeslices,
 
     #Create the array to store the change of parameters in each iteration
 
-    n_AR=100
+    n_AR=1
     change_params=np.full([nparams,n_AR], np.nan)
 
     #Initialize the scalar index2, it is used to check if the parameter has changed in each iteration
@@ -167,7 +167,7 @@ def inditek_metropolis(params_current, food_shelf, temp_shelf, Point_timeslices,
 
             #Run the model and Calculate the RSS (residual sum of squares) for the proposed parameters
 
-            [rss_proposed,D, D_pac, D_med, D_car]=principal(kfood, params_proposed[1], food_shelf, temp_shelf, ext_pattern, params_proposed[0], params_proposed[3], params_proposed[2], params_proposed[4], ext_intercept, ext_slope, shelf_lonlatAge, Point_timeslices, latWindow,lonWindow,LonDeg, landShelfOcean_Lat,landShelfOcean_Lon, landShelfOceanMask, mean_obis,std_obis,ids_obis, proof, indices_pac, indices_med, indices_car) #con 7 parametros
+            [rss_proposed,D, D_pac, D_med, D_car]=principal(kfood, params_proposed[1], food_shelf, temp_shelf, ext_pattern, params_proposed[0], params_proposed[3], params_proposed[2], params_proposed[4], ext_intercept, ext_slope, shelf_lonlatAge, Point_timeslices, latWindow,lonWindow,LonDeg, landShelfOcean_Lat,landShelfOcean_Lon, landShelfOceanMask, proof, indices_pac, indices_med, indices_car) #con 7 parametros
 
             #As it is done before, calculate the log(prior), log(likelihood) and log(posterior) of proposed parameters to compare to the current ones in the loop
             temp=np.zeros([nparams,1])
