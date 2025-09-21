@@ -80,9 +80,10 @@ def inditek_metropolis(params_current, food_shelf, temp_shelf, Point_timeslices,
         "new_parameter": np.zeros(5),
         "sigma_prop": np.zeros([nsamples,nparams]),
         "D": np.zeros([int(nsamples/n_D)+1,2978]),
-        "D_pac": np.zeros([int(nsamples/n_D)+1, len(indices_pac), 82]),
-        "D_med": np.zeros([int(nsamples/n_D)+1, len(indices_med), 82]),
-        "D_car": np.zeros([int(nsamples/n_D)+1, len(indices_car), 82])
+        #"D_pac": np.zeros([int(nsamples/n_D)+1, len(indices_pac), 82]),
+        #"D_med": np.zeros([int(nsamples/n_D)+1, len(indices_med), 82]),
+        #"D_car": np.zeros([int(nsamples/n_D)+1, len(indices_car), 82])
+        "D_shelf": np.zeros([int(nsamples/n_D)+1,  49688, 82])
         }
 
 
@@ -97,7 +98,7 @@ def inditek_metropolis(params_current, food_shelf, temp_shelf, Point_timeslices,
     #Calculates the initial RSS (residual sum of squares) for the current parameters, it also saves the current global diversity and the 
     #diversity along time in the mediterranean, pacific and caribbean
 
-    [rss_current,D,  D_pac, D_med, D_car]=principal(kfood, params_current[1], food_shelf, temp_shelf, ext_pattern, params_current[0], params_current[3], params_current[2], params_current[4], ext_intercept, ext_slope, shelf_lonlatAge, Point_timeslices, latWindow,lonWindow,LonDeg, landShelfOcean_Lat,landShelfOcean_Lon, landShelfOceanMask, proof, indices_pac, indices_med, indices_car)
+    [rss_current,D, D_shelf]=principal(kfood, params_current[1], food_shelf, temp_shelf, ext_pattern, params_current[0], params_current[3], params_current[2], params_current[4], ext_intercept, ext_slope, shelf_lonlatAge, Point_timeslices, latWindow,lonWindow,LonDeg, landShelfOcean_Lat,landShelfOcean_Lon, landShelfOceanMask, proof, indices_pac, indices_med, indices_car)
 
     temp=np.zeros(nparams)#force those with uniform distribution to a probability of 1 along the range (log(1)=0;)
     if gaus.size>0:
@@ -167,7 +168,7 @@ def inditek_metropolis(params_current, food_shelf, temp_shelf, Point_timeslices,
 
             #Run the model and Calculate the RSS (residual sum of squares) for the proposed parameters
 
-            [rss_proposed,D, D_pac, D_med, D_car]=principal(kfood, params_proposed[1], food_shelf, temp_shelf, ext_pattern, params_proposed[0], params_proposed[3], params_proposed[2], params_proposed[4], ext_intercept, ext_slope, shelf_lonlatAge, Point_timeslices, latWindow,lonWindow,LonDeg, landShelfOcean_Lat,landShelfOcean_Lon, landShelfOceanMask, proof, indices_pac, indices_med, indices_car) #con 7 parametros
+            [rss_proposed,D, D_shelf]=principal(kfood, params_proposed[1], food_shelf, temp_shelf, ext_pattern, params_proposed[0], params_proposed[3], params_proposed[2], params_proposed[4], ext_intercept, ext_slope, shelf_lonlatAge, Point_timeslices, latWindow,lonWindow,LonDeg, landShelfOcean_Lat,landShelfOcean_Lon, landShelfOceanMask, proof, indices_pac, indices_med, indices_car) #con 7 parametros
 
             #As it is done before, calculate the log(prior), log(likelihood) and log(posterior) of proposed parameters to compare to the current ones in the loop
             temp=np.zeros([nparams,1])
@@ -188,9 +189,9 @@ def inditek_metropolis(params_current, food_shelf, temp_shelf, Point_timeslices,
             output["sigma_prop"][iter]=sigma_prop
             if iter % n_D == 0:
                 output["D"][int(iter/n_D),:]=D
-                output["D_pac"][int(iter/n_D),:,:]=D_pac
-                output["D_med"][int(iter/n_D),:,:]=D_med
-                output["D_car"][int(iter/n_D),:,:]=D_car
+                output["D_shelf"][int(iter/n_D),:,:]=D_shelf
+                #output["D_med"][int(iter/n_D),:,:]=D_med
+                #output["D_car"][int(iter/n_D),:,:]=D_car
 
 
             #Calculate Acceptance Probability according to the ratio between the likelihood of proposed vs current 
@@ -225,9 +226,10 @@ def inditek_metropolis(params_current, food_shelf, temp_shelf, Point_timeslices,
 
             if iter % n_D == 0:
                 output["D"][int(iter/n_D),:]=np.nan
-                output["D_pac"][int(iter/n_D),:,:]=D_pac
-                output["D_med"][int(iter/n_D),:,:]=D_med
-                output["D_car"][int(iter/n_D),:,:]=D_car
+                #output["D_pac"][int(iter/n_D),:,:]=D_pac
+                #output["D_med"][int(iter/n_D),:,:]=D_med
+                #output["D_car"][int(iter/n_D),:,:]=D_car
+                output["D_shelf"][int(iter/n_D),:,:]=D_shelf
         index2=index1
 
         #print("#########################################################################")

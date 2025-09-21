@@ -103,7 +103,7 @@ def principal(kfood, Kmin, food_shelf, temp_shelf, ext_pattern, Kmax_mean, spec_
 
      
 
-     return rss, D, D_shelf[indices_pac,:], D_shelf[indices_med,:], D_shelf[indices_car,:]
+     return rss, D_nan, D_shelf#[indices_pac,:], D_shelf[indices_med,:], D_shelf[indices_car,:]
      #elapsed_time = time.time() - start_time
 
 

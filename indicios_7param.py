@@ -21,7 +21,7 @@ def run_chain(iChain):
         output["residuals"], 
         output["AR_parameter"], 
         output["new_parameter"], output["sigma_prop"], output["D"],
-        output["D_pac"], output["D_med"], output["D_car"]
+        output["D_shelf"]
     )
 
 start=time.time()
@@ -150,9 +150,10 @@ AR_parameter=np.zeros([5,num_chains])
 new_parameter=np.zeros([5,num_chains])
 sigma_new=np.zeros([nsamples,nparams, num_chains])
 D = np.zeros([int(nsamples/n_D)+1, 2978, num_chains]) # to store the D values for every 2 iterations, as it is only printed every 2 iterations
-D_pac = np.zeros([int(nsamples/n_D)+1, len(indices_pac), 82, num_chains])
-D_med = np.zeros([int(nsamples/n_D)+1, len(indices_med), 82, num_chains])
-D_car = np.zeros([int(nsamples/n_D)+1, len(indices_car), 82, num_chains])
+#D_pac = np.zeros([int(nsamples/n_D)+1, len(indices_pac), 82, num_chains])
+#D_med = np.zeros([int(nsamples/n_D)+1, len(indices_med), 82, num_chains])
+#D_car = np.zeros([int(nsamples/n_D)+1, len(indices_car), 82, num_chains])
+D_shelf= np.zeros([int(nsamples/n_D)+1, 49688, 82, num_chains])
 
 #########################################################
 # Start the parallel computation
@@ -178,15 +179,16 @@ for iChain, result in enumerate(results):
     new_parameter[:,iChain]=result[7]
     sigma_new[:,:,iChain]=result[8]
     D[:, :, iChain] = result[9]
-    D_pac[:,:,:,iChain]=result[10]
-    D_med[:,:,:,iChain]=result[11]
-    D_car[:,:,:,iChain]=result[12]
+    D_shelf[:,:,:,iChain] = result[10]
+    #D_pac[:,:,:,iChain]=result[10]
+    #D_med[:,:,:,iChain]=result[11]
+    #D_car[:,:,:,iChain]=result[12]
 
     
 
 #Save the final results
 
-np.savez("datos_finales_indicios_7param.npz", params_proposed_history=params_proposed_history, params_accepted_history=params_accepted_history, rss_proposed_history=rss_proposed_history, rss_accepted_history=rss_accepted_history, acceptance_history=acceptance_history,  AR_parameter=AR_parameter, new_parameter=new_parameter, sigma_new=sigma_new, D=D, D_pac=D_pac, D_car=D_car, D_med=D_med)
+np.savez("datos_finales_indicios_7param.npz", params_proposed_history=params_proposed_history, params_accepted_history=params_accepted_history, rss_proposed_history=rss_proposed_history, rss_accepted_history=rss_accepted_history, acceptance_history=acceptance_history,  AR_parameter=AR_parameter, new_parameter=new_parameter, sigma_new=sigma_new, D=D, D_shelf=D_shelf)
 
 #Finally, to measure the time it costs for the simulation
 end=time.time()
