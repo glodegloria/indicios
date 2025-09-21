@@ -106,12 +106,12 @@ def alphadiv(Point_timeslices,shelf_lonlatAge,rho_shelf,K_shelf,latWindow,lonWin
                     #Boundaries between the carrying capacity (K_shelf) and D0 (1 genus area^(-1))
 
                     if d>K_shelf[pos2S[k],step]:
-                        a3+=1
+                        
                         #print(d)
                         d=K_shelf[pos2S[k],step] #force local extinction if imported diversity is greater than K.
                         
                     elif d<D0:
-                        a4+=1
+                        
                         d=D0 #force d to be at least D0, 1.
 
 
@@ -121,12 +121,12 @@ def alphadiv(Point_timeslices,shelf_lonlatAge,rho_shelf,K_shelf,latWindow,lonWin
 
                         d=max(D0,d+rho_shelf[pos2S[k],count2+1]*d)#bounded by D0
                         D_shelf[pos2S[k],count2+1]=min(K_shelf[pos2S[k],step],d)#bounded by K_shelf (The carrying capacity)
-                        a5+=1
+                        
                     else: # normal diversification period
 
                         d=min(K_shelf[pos2S[k],step],d+rho_shelf[pos2S[k],count2+1]*d*(max(0,1-(d/K_shelf[pos2S[k],step])))) 
                         D_shelf[pos2S[k],count2+1]=max(D0,d)
-                        a6+=1
+                        
 
                     
 
